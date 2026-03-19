@@ -3,13 +3,13 @@ package notebook;
 import javax.swing.*;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
+//import java.awt.Dimension;
+//import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ClientForm extends JFrame {
-	
+	private static final long serialVersionUID = 1L;
 	private JFrame frame = new JFrame("Записная книга");
 	
     private JTextField nameField = new JTextField(15);
@@ -17,9 +17,9 @@ public class ClientForm extends JFrame {
     private JTextField emailField = new JTextField(15);
     private JButton addButton = new JButton("Добавить");
     private JButton listButton = new JButton("Показать всех");
-    private JTextArea displayArea = new JTextArea(10, 30);
+    //private JTextArea displayArea = new JTextArea(10, 30);
 
-    private ClientDAO clientDAO = new ClientDAO();
+    //private ClientDAO clientDAO = new ClientDAO();
 
     public ClientForm() {
 
