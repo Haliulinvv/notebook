@@ -29,9 +29,10 @@ public class ClientForm extends JFrame {
         
         // ... настройка интерфейса (размещение полей и кнопок на форме) ...
     	 // Главная форма приложения
-        frame.setSize(1000, 1000);
+        frame.setSize(1000, 500);
         //frame.setResizable(false);
-        frame.setLocationRelativeTo(null);
+        frame.setLocation(2400,200);
+        //frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
 
@@ -74,7 +75,7 @@ public class ClientForm extends JFrame {
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-   /*             String name = nameField.getText();
+                String name = nameField.getText();
                 String phone = phoneField.getText();
                 String email = emailField.getText();
 
@@ -82,14 +83,17 @@ public class ClientForm extends JFrame {
                     JOptionPane.showMessageDialog(ClientForm.this, "Имя не может быть пустым!");
                     return;
                 }
-
-                Client newClient = new Client(name, phone, email);
-                clientDAO.addClient(newClient); // <-- Вот здесь мы вызываем метод для работы с БД
+                JOptionPane.showMessageDialog(ClientForm.this, "Вы ввели имя: " + name  +"\n"
+					 	   									     + "Телефон : " + phone +"\n"
+					 	   									     + "E-mail : "  + email);
+                
+ /*               Client newClient = new Client(name, phone, email);
+                clientDAO.addClient(newClient); // <-- Вот здесь мы вызываем метод для работы с БД*/
 
                 JOptionPane.showMessageDialog(ClientForm.this, "Клиент добавлен!");
                 nameField.setText("");
                 phoneField.setText("");
-                emailField.setText("");*/
+                emailField.setText("");
             }
         });
 /*
