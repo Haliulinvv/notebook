@@ -17,8 +17,8 @@ public class ClientForm extends JFrame {
     private JTextField emailField = new JTextField(15);
     private JButton addButton = new JButton("Добавить");
     private JButton listButton = new JButton("Показать всех");
-    //private JTextArea displayArea = new JTextArea(10, 30);
-
+    private JTextArea displayArea = new JTextArea(10, 30);
+    private JScrollPane scrollPane = new JScrollPane(displayArea);
     private ClientDAO clientDAO = new ClientDAO();
 
     public ClientForm() {
@@ -72,6 +72,16 @@ public class ClientForm extends JFrame {
         labelMail.setBounds(30, 150, 50, 30); // x, y, ширина, высота
         frame.add(labelMail);
         
+        // Добавляем на фрейм 
+        //displayArea.setBounds(20, 200, 300, 250); // x, y, ширина, высота
+        //frame.add(displayArea);
+        displayArea.setEditable(false);   
+        scrollPane.setBounds(20, 200, 950, 250); // x, y, ширина, высота
+        frame.add(scrollPane);
+
+        
+
+        
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -96,16 +106,18 @@ public class ClientForm extends JFrame {
                 emailField.setText("");
             }
         });
-/*
+
         listButton.addActionListener(e -> {
             displayArea.setText(""); // Очищаем область
             for (Client client : clientDAO.getAllClients()) {
-                displayArea.append(client.getId() + ": " +
-                                   client.getName() + ", " +
-                                   client.getPhone() + ", " +
-                                   client.getEmail() + "\n");
+                displayArea.append("ID: "+ client.getId() + 
+                				   " Имя: " + client.getName() + 
+                				   " Телефон: " + client.getPhone() +
+                				   " e-mail: " + client.getEmail() + "\n");
+                
             }
-        });*/
+        });
+
         // ... остальной код ...
     }
 }
