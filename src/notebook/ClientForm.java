@@ -19,7 +19,7 @@ public class ClientForm extends JFrame {
     private JButton listButton = new JButton("Показать всех");
     //private JTextArea displayArea = new JTextArea(10, 30);
 
-    //private ClientDAO clientDAO = new ClientDAO();
+    private ClientDAO clientDAO = new ClientDAO();
 
     public ClientForm() {
 
@@ -87,8 +87,8 @@ public class ClientForm extends JFrame {
 					 	   									     + "Телефон : " + phone +"\n"
 					 	   									     + "E-mail : "  + email);
                 
- /*               Client newClient = new Client(name, phone, email);
-                clientDAO.addClient(newClient); // <-- Вот здесь мы вызываем метод для работы с БД*/
+                Client newClient = new Client(name, phone, email);
+                clientDAO.addClient(newClient); // <-- Вот здесь мы вызываем метод для работы с БД
 
                 JOptionPane.showMessageDialog(ClientForm.this, "Клиент добавлен!");
                 nameField.setText("");
