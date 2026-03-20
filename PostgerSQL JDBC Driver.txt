@@ -1,0 +1,16 @@
+1. Скачиваем JDK устанавливаем C:\Program File\ java\jdk-XX (XX - номер версии)
+2. Пропатчить Java
+	2.1. Зайти в "Свойства системы"
+	Вариант 1 - Win+R запустить sysdm.cpl
+	Вариант 2 - Пуск -> Параметры -> Система -> О системе -> (В блоке сопутствующие параметры) Дополнительные параметры системы
+	2.2. Зайти во вкладку дополнительно -> Переменные среды
+	2.3. В переменных средах пользователя: нажать Создать -> Ввести имя пользователя JAVA_HOME, Значение переменной C:\ Program File\Java\jdk-XX (XX - номер версии)
+	2.4. Выбрать Path -> нажать Изменить -> нажать Создать и указать %JAVA_HOME%\bin
+3. Проверить версию JDK. В командной строке -> java -version
+4. Установить Eclipse
+5. Познакомить JDK 	и  Eclipse. Eclipse -> Window -> Preferences... -> JAVA -> Instaled JREs   Установить галочку  C:\Program File\Java\jdk-XX(XX - номер версии) -> Apply and Close
+6. Скачать PostgreSQL
+7. Установить PostgreSQL
+8. Скачать PostgreSQL JDBC Driver
+9. Копируем PostgreSQL JDBC Driver в папку проекта
+10. Добовляем PostgreSQL JDBC Driver в Eclipse. ПКМ по проекту -> Properties -> JAVA Build Path -> Вкладка Libraries -> addExternal JARs... (выбираем в папке проекта наш postgresql-XXXX.jar -> Apply and Close
