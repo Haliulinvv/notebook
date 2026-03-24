@@ -15,10 +15,11 @@ public class ClientForm extends JFrame {
     private JTextField nameField = new JTextField(15);
     private JTextField phoneField = new JTextField(15);
     private JTextField emailField = new JTextField(15);
-    private JTextField deleteIdField = new JTextField(5); 				
+    private JTextField idField = new JTextField(5); 				
     private JButton addButton = new JButton("Добавить");
     private JButton listButton = new JButton("Показать всех");
     private JButton deleteButton = new JButton("Удалить");
+    private JButton updateButton = new JButton("Обновить");
     private JTextArea displayArea = new JTextArea(10, 30);
     private JScrollPane scrollPane = new JScrollPane(displayArea);
     private ClientDAO clientDAO = new ClientDAO();
@@ -46,23 +47,25 @@ public class ClientForm extends JFrame {
         
 
         addButton.setBounds(450, 50, 200, 30); // x, y, ширина, высота
-        listButton.setBounds(450, 100, 200, 30); // x, y, ширина, высота
-        deleteButton.setBounds(450, 470, 200, 30); // x, y, ширина, высота
+        listButton.setBounds(450, 100, 200, 30); 
+        deleteButton.setBounds(450, 470, 200, 30); 
+        updateButton.setBounds(450, 150, 200, 30);
         frame.add(addButton);
         frame.add(listButton);
         frame.add(deleteButton);
+        frame.add(updateButton);
         
         
         // Добавляем компоненты на фрейм
         nameField.setBounds(100, 50, 300, 30); // x, y, ширина, высота
-        phoneField.setBounds(100, 100, 300, 30); // x, y, ширина, высота
-        emailField.setBounds(100, 150, 300, 30); // x, y, ширина, высота
-        deleteIdField.setBounds(100, 470, 300, 30); // x, y, ширина, высота
+        phoneField.setBounds(100, 100, 300, 30);
+        emailField.setBounds(100, 150, 300, 30); 
+        idField.setBounds(100, 470, 300, 30); 
    
         frame.add(nameField, BorderLayout.NORTH);
         frame.add(phoneField, BorderLayout.NORTH);
         frame.add(emailField, BorderLayout.NORTH);
-        frame.add(deleteIdField, BorderLayout.NORTH);
+        frame.add(idField, BorderLayout.NORTH);
         
         JLabel labelName = new JLabel("Имя");
         labelName.setBounds(30, 50, 50, 30); // x, y, ширина, высота
@@ -87,7 +90,7 @@ public class ClientForm extends JFrame {
         scrollPane.setBounds(20, 200, 950, 250); // x, y, ширина, высота
         frame.add(scrollPane);
 
-        
+        // Обработка события Добавления записи в таблицу
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -114,6 +117,8 @@ public class ClientForm extends JFrame {
             }
         });
 
+        
+        // Обработка события Вывести все записи из таблицы в многострочное текстовое поле
         listButton.addActionListener(e -> {
             displayArea.setText(""); // Очищаем область
             for (Client client : clientDAO.getAllClients()) {
@@ -125,8 +130,10 @@ public class ClientForm extends JFrame {
             }
         });
 
+        
+     // Обработка события Удаления записи из таблицы
         deleteButton.addActionListener(e -> {
-            String idText = deleteIdField.getText().trim();
+            String idText = idField.getText().trim();
             if (idText.isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "Введите ID записи для удаления.");
                 return;
@@ -137,7 +144,7 @@ public class ClientForm extends JFrame {
                 clientDAO.deleteClient(id);
                 // Обновляем список клиентов (вызываем ту же логику, что и при нажатии "Показать всех")
                 updateClientList(); // метод для обновления displayArea
-                deleteIdField.setText(""); // очищаем поле
+                idField.setText(""); // очищаем поле
                 JOptionPane.showMessageDialog(frame, "Запись удалена.");
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(frame, "ID должен быть целым числом.");
@@ -147,10 +154,26 @@ public class ClientForm extends JFrame {
             }
         });        
         
-        
+        // Обработка события Обновления записи в таблице
+    	updateButton.addActionListener(e -> {
+    		String idText = idField.getText();
+            String name = nameField.getText();
+            String phone = phoneField.getText();
+            String email = emailField.getText();
+            int id = Integer.parseInt(idText);
+    		Client updateClient = new Client(id, name, phone, email);
+    		clientDAO.updateClient(updateClient);
+    		updateClientList();
+    	});
       
     }
-
+    
+    
+    
+   
+       
+       
+       
 	private void updateClientList() {
 		        displayArea.setText("");
         for (Client client : clientDAO.getAllClients()) {
