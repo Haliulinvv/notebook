@@ -110,16 +110,17 @@ public class ClientForm extends JFrame {
                 nameField.setText("");
                 phoneField.setText("");
                 emailField.setText("");
+                updateClientList();
             }
         });
 
         listButton.addActionListener(e -> {
             displayArea.setText(""); // Очищаем область
             for (Client client : clientDAO.getAllClients()) {
-                displayArea.append("ID: "+ client.getId() + 
-                				   " Имя: " + client.getName() + 
-                				   " Телефон: " + client.getPhone() +
-                				   " e-mail: " + client.getEmail() + "\n");
+                displayArea.append("ID: "+ 			client.getId() + 
+                				   " Имя: " + 		client.getName() + 
+                				   " Телефон: " + 	client.getPhone() +
+                				   " e-mail: " + 	client.getEmail() + "\n");
                 
             }
         });
@@ -153,10 +154,11 @@ public class ClientForm extends JFrame {
 	private void updateClientList() {
 		        displayArea.setText("");
         for (Client client : clientDAO.getAllClients()) {
-            displayArea.append(client.getId() + ": " +
-                    client.getName() + ", " +
-                    client.getPhone() + ", " +
-                    client.getEmail() + "\n");
+            displayArea.append("ID: "+ 			client.getId() + 
+ 				   			   " Имя: " + 		client.getName() + 
+ 				   			   " Телефон: " + 	client.getPhone() +
+ 				   			   " e-mail: " + 	client.getEmail() + "\n");
+
         }
 		
 	}
