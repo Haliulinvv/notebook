@@ -159,11 +159,19 @@ public class ClientForm extends JFrame {
     		String idText = idField.getText();
             String name = nameField.getText();
             String phone = phoneField.getText();
-            String email = emailField.getText();
-            int id = Integer.parseInt(idText);
-    		Client updateClient = new Client(id, name, phone, email);
-    		clientDAO.updateClient(updateClient);
-    		updateClientList();
+            String email = emailField.getText(); 
+    		try {
+    			int id = Integer.parseInt(idText);
+        		Client updateClient = new Client(id, name, phone, email);
+        		clientDAO.updateClient(updateClient);
+        		updateClientList();
+        		JOptionPane.showMessageDialog(frame, "Запись обновлена.");
+    		} catch (NumberFormatException ex) {
+    			JOptionPane.showMessageDialog(frame, "ID должен быть целым числом.");
+    		} catch (Exception ex) {
+                JOptionPane.showMessageDialog(frame, "Ошибка при обновлении: " + ex.getMessage());
+                ex.printStackTrace();
+    		}
     	});
       
     }
