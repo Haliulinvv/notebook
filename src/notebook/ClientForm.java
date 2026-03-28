@@ -13,12 +13,11 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 
-
-
 public class ClientForm extends JFrame {
+
   private static final long serialVersionUID = 1L;
   private JFrame frame = new JFrame("Записная книга");
-  
+
   private JTextField nameField = new JTextField(15);
   private JTextField phoneField = new JTextField(15);
   private JTextField emailField = new JTextField(15);
@@ -33,66 +32,66 @@ public class ClientForm extends JFrame {
 
 
   /**
-    * Создаёт новый экземпляр формы ClientForm.
-    * Инициализирует компоненты интерфейса и подключается к базе данных.
-    * 
-    * @author
-    * 
-    */
-  
+   * Создаёт новый экземпляр формы ClientForm. Инициализирует компоненты интерфейса и подключается к
+   * базе данных.
+   *
+   * @author
+   *
+   */
+
   public ClientForm() {
 
     frame.setLayout(null); // отключаем менеджер
-        
+
     // ... настройка интерфейса (размещение полей и кнопок на форме) ...
     // Главная форма приложения
     frame.setSize(1000, 550);
     //frame.setResizable(false);
-    frame.setLocation(2400,200);
+    frame.setLocation(300, 100);
     //frame.setLocationRelativeTo(null);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setVisible(true);
-       
+
     addButton.setBounds(450, 50, 200, 30); // x, y, ширина, высота
-    listButton.setBounds(450, 100, 200, 30); 
-    deleteButton.setBounds(450, 470, 200, 30); 
+    listButton.setBounds(450, 100, 200, 30);
+    deleteButton.setBounds(450, 470, 200, 30);
     updateButton.setBounds(450, 150, 200, 30);
     frame.add(addButton);
     frame.add(listButton);
     frame.add(deleteButton);
     frame.add(updateButton);
-    
+
     // Добавляем компоненты на фрейм
     nameField.setBounds(100, 50, 300, 30); // x, y, ширина, высота
     phoneField.setBounds(100, 100, 300, 30);
-    emailField.setBounds(100, 150, 300, 30); 
-    idField.setBounds(100, 470, 300, 30); 
-    
+    emailField.setBounds(100, 150, 300, 30);
+    idField.setBounds(100, 470, 300, 30);
+
     frame.add(nameField, BorderLayout.NORTH);
     frame.add(phoneField, BorderLayout.NORTH);
     frame.add(emailField, BorderLayout.NORTH);
     frame.add(idField, BorderLayout.NORTH);
-    
+
     JLabel labelName = new JLabel("Имя");
     labelName.setBounds(30, 50, 50, 30); // x, y, ширина, высота
     frame.add(labelName);
-    
+
     JLabel labelPhone = new JLabel("Телефон");
     labelPhone.setBounds(30, 100, 70, 30); // x, y, ширина, высота
     frame.add(labelPhone);
-    
+
     JLabel labelMail = new JLabel("E-mail");
     labelMail.setBounds(30, 150, 50, 30); // x, y, ширина, высота
     frame.add(labelMail);
-    
+
     JLabel labelId = new JLabel("ID");
     labelId.setBounds(30, 470, 50, 30); // x, y, ширина, высота
     frame.add(labelId);
-    
-    // Добавляем на фрейм 
+
+    // Добавляем на фрейм
     //displayArea.setBounds(20, 200, 300, 250); // x, y, ширина, высота
     //frame.add(displayArea);
-    displayArea.setEditable(false);   
+    displayArea.setEditable(false);
     scrollPane.setBounds(20, 200, 950, 250); // x, y, ширина, высота
     frame.add(scrollPane);
 
@@ -103,18 +102,18 @@ public class ClientForm extends JFrame {
         String name = nameField.getText();
         String phone = phoneField.getText();
         String email = emailField.getText();
-        
+
         if (name.isEmpty()) {
           JOptionPane.showMessageDialog(ClientForm.this, "Имя не может быть пустым!");
           return;
         }
-        JOptionPane.showMessageDialog(ClientForm.this, "Вы ввели имя: " + name  + "\n"
-                                                     + "Телефон : " + phone + "\n"
-                                                     + "E-mail : "  + email);
-        
+        JOptionPane.showMessageDialog(ClientForm.this, "Вы ввели имя: " + name + "\n"
+            + "Телефон : " + phone + "\n"
+            + "E-mail : " + email);
+
         Client newClient = new Client(name, phone, email);
         clientDataAccessObject.addClient(newClient); // Вот здесь мы вызываем метод для работы с БД
-        
+
         JOptionPane.showMessageDialog(ClientForm.this, "Клиент добавлен!");
         nameField.setText("");
         phoneField.setText("");
@@ -123,19 +122,17 @@ public class ClientForm extends JFrame {
       }
     });
 
-
     // Обработка события Вывести все записи из таблицы в многострочное текстовое поле
     listButton.addActionListener(e -> {
       displayArea.setText(""); // Очищаем область
       for (Client client : clientDataAccessObject.getAllClients()) {
-        displayArea.append("ID: " +       client.getId()
-                         + " Имя: " +     client.getName()
-                         + " Телефон: " + client.getPhone()
-                         + " e-mail: " +  client.getEmail() + "\n");
+        displayArea.append("ID: " + client.getId()
+            + " Имя: " + client.getName()
+            + " Телефон: " + client.getPhone()
+            + " e-mail: " + client.getEmail() + "\n");
 
       }
     });
-
 
     // Обработка события Удаления записи из таблицы
     deleteButton.addActionListener(e -> {
@@ -158,14 +155,14 @@ public class ClientForm extends JFrame {
         JOptionPane.showMessageDialog(frame, "Ошибка при удалении: " + ex.getMessage());
         ex.printStackTrace();
       }
-    });        
+    });
 
     // Обработка события Обновления записи в таблице
     updateButton.addActionListener(e -> {
       String idText = idField.getText();
       String name = nameField.getText();
       String phone = phoneField.getText();
-      String email = emailField.getText(); 
+      String email = emailField.getText();
       try {
         int id = Integer.parseInt(idText);
         Client updateClient = new Client(id, name, phone, email);
@@ -183,18 +180,13 @@ public class ClientForm extends JFrame {
   }
 
 
-
-
-
-
-
   private void updateClientList() {
     displayArea.setText("");
     for (Client client : clientDataAccessObject.getAllClients()) {
-      displayArea.append("ID: " +       client.getId()
-                       + " Имя: " +     client.getName()
-                       + " Телефон: " + client.getPhone()
-                       + " e-mail: " +  client.getEmail() + "\n");
+      displayArea.append("ID: " + client.getId()
+          + " Имя: " + client.getName()
+          + " Телефон: " + client.getPhone()
+          + " e-mail: " + client.getEmail() + "\n");
 
     }
   }
