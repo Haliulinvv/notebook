@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -41,6 +42,14 @@ public class ClientForm extends JFrame {
 
   public ClientForm() {
 
+    // Иконка окна
+    ImageIcon icon = new ImageIcon(getClass().getResource("/icon.png"));
+    if (icon.getImage() != null) {
+      frame.setIconImage(icon.getImage());
+    } else {
+      System.err.println("Иконка не найдена");
+    }
+    
     frame.setLayout(null); // отключаем менеджер
 
     // ... настройка интерфейса (размещение полей и кнопок на форме) ...
