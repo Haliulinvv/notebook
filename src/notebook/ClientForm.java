@@ -1,6 +1,7 @@
 package notebook;
 
 import java.awt.BorderLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -27,6 +28,15 @@ public class ClientForm extends JFrame {
   private JButton listButton = new JButton("Показать всех");
   private JButton deleteButton = new JButton("Удалить");
   private JButton updateButton = new JButton("Обновить");
+  
+  // Загружаем иконку
+  ImageIcon originalIcon = new ImageIcon(getClass().getResource("/find.png"));
+  // Получаем изображение
+  Image img = originalIcon.getImage();
+  // Масштабируем (можно использовать MediaTracker для ожидания, но обычно работает)
+  Image scaledImg = img.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+  private JButton findButton = new JButton("Найти", new ImageIcon(scaledImg));
+  
   private JTextArea displayArea = new JTextArea(10, 30);
   private JScrollPane scrollPane = new JScrollPane(displayArea);
   private ClientDataAccessObject clientDataAccessObject = new ClientDataAccessObject();
@@ -60,16 +70,18 @@ public class ClientForm extends JFrame {
     //frame.setLocationRelativeTo(null);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setVisible(true);
-
+  
     addButton.setBounds(450, 50, 200, 30); // x, y, ширина, высота
     listButton.setBounds(450, 100, 200, 30);
     deleteButton.setBounds(450, 470, 200, 30);
     updateButton.setBounds(450, 150, 200, 30);
+    findButton.setBounds(750, 50, 200, 30);
     frame.add(addButton);
     frame.add(listButton);
     frame.add(deleteButton);
     frame.add(updateButton);
-
+    frame.add(findButton);
+    
     // Добавляем компоненты на фрейм
     nameField.setBounds(100, 50, 300, 30); // x, y, ширина, высота
     phoneField.setBounds(100, 100, 300, 30);
@@ -186,6 +198,28 @@ public class ClientForm extends JFrame {
       }
     });
 
+    // Обработка события Добавления записи в таблицу
+    findButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        JOptionPane.showMessageDialog(frame, "Нажата кнопка 'Найти'");
+        String name = nameField.getText();
+        if (name.isEmpty()) {
+          JOptionPane.showMessageDialog(ClientForm.this, "Имя не может быть пустым!");
+          return;
+        }
+        displayArea.setText(""); // Очищаем область
+        for (Client client : clientDataAccessObject.getFindClients(name)) {
+          displayArea.append("ID: " + client.getId()
+              + " Имя: " + client.getName()
+              + " Телефон: " + client.getPhone()
+              + " e-mail: " + client.getEmail() + "\n");
+
+        }
+      }
+      
+    });
+    
   }
 
 

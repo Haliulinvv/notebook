@@ -109,4 +109,33 @@ public class ClientDataAccessObject {
       e.printStackTrace();
     }
   }
+  
+  /**
+   * Поиск клиентов в таблице по name.
+   */
+
+  public List<Client> getFindClients(String findName) {
+    List<Client> clients = new ArrayList<>();
+    String sql = "SELECT * FROM clients WHERE name LIKE '" + findName  + "%'";
+
+    // try-with-resources автоматически закроет Connection, Statement и ResultSet
+    try (Connection conn = DatabaseConnection.getConnection();
+         Statement stmt = conn.createStatement();
+         ResultSet rs = stmt.executeQuery(sql)) {
+
+      while (rs.next()) {
+        Client client = new Client(
+                      rs.getInt("id"),
+                      rs.getString("name"),
+                      rs.getString("phone"),
+                      rs.getString("email")
+                );
+        clients.add(client);
+      }
+    } catch (SQLException e) {
+      System.err.println("Ошибка при получении списка клиентов.");
+      e.printStackTrace();
+    }
+    return clients;
+  }
 }
