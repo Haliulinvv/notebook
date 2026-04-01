@@ -37,6 +37,7 @@ public class ClientForm extends JFrame {
   Image scaledImg = img.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
   private JButton findButton = new JButton("Найти", new ImageIcon(scaledImg));
   
+  private JButton sortNameButton = new JButton("Сортировать");
   private JTextArea displayArea = new JTextArea(10, 30);
   private JScrollPane scrollPane = new JScrollPane(displayArea);
   private ClientDataAccessObject clientDataAccessObject = new ClientDataAccessObject();
@@ -76,11 +77,13 @@ public class ClientForm extends JFrame {
     deleteButton.setBounds(450, 470, 200, 30);
     updateButton.setBounds(450, 150, 200, 30);
     findButton.setBounds(750, 50, 200, 30);
+    sortNameButton.setBounds(750, 100, 200, 30);
     frame.add(addButton);
     frame.add(listButton);
     frame.add(deleteButton);
     frame.add(updateButton);
     frame.add(findButton);
+    frame.add(sortNameButton);
     
     // Добавляем компоненты на фрейм
     nameField.setBounds(100, 50, 300, 30); // x, y, ширина, высота
@@ -202,7 +205,6 @@ public class ClientForm extends JFrame {
     findButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        JOptionPane.showMessageDialog(frame, "Нажата кнопка 'Найти'");
         String name = nameField.getText();
         if (name.isEmpty()) {
           JOptionPane.showMessageDialog(ClientForm.this, "Имя не может быть пустым!");
@@ -219,6 +221,27 @@ public class ClientForm extends JFrame {
       }
       
     });
+    
+    
+    // Обработка события Сортировать записи таблици по имени
+    sortNameButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        String name = nameField.getText();
+        if (name.isEmpty()) {
+          JOptionPane.showMessageDialog(ClientForm.this, "Имя не может быть пустым!");
+          return;
+        }
+        displayArea.setText(""); // Очищаем область
+        for (Client client : clientDataAccessObject.getSortNameClients(name)) {
+          displayArea.append(" Имя: " + client.getName()
+                           + "    Телефон: " + client.getPhone() + "\n");
+
+        }
+      }
+      
+    });
+    
     
   }
 

@@ -138,4 +138,33 @@ public class ClientDataAccessObject {
     }
     return clients;
   }
+  
+  /**
+   * Сортировать клиентов по имени.
+   */
+  
+  public List<Client> getSortNameClients(String findName) {
+    List<Client> clients = new ArrayList<>();
+    String sql = "SELECT * FROM clients WHERE name LIKE '" + findName  + "%' ORDER BY name";
+
+    // try-with-resources автоматически закроет Connection, Statement и ResultSet
+    try (Connection conn = DatabaseConnection.getConnection();
+         Statement stmt = conn.createStatement();
+         ResultSet rs = stmt.executeQuery(sql)) {
+
+      while (rs.next()) {
+        Client client = new Client(
+                      rs.getInt("id"),
+                      rs.getString("name"),
+                      rs.getString("phone"),
+                      rs.getString("email")
+                );
+        clients.add(client);
+      }
+    } catch (SQLException e) {
+      System.err.println("Ошибка при получении списка клиентов.");
+      e.printStackTrace();
+    }
+    return clients;
+  }
 }
