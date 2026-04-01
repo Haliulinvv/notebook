@@ -4,6 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -28,16 +33,19 @@ public class ClientForm extends JFrame {
   private JButton listButton = new JButton("Показать всех");
   private JButton deleteButton = new JButton("Удалить");
   private JButton updateButton = new JButton("Обновить");
-  
-  // Загружаем иконку
-  ImageIcon originalIcon = new ImageIcon(getClass().getResource("/find.png"));
-  // Получаем изображение
-  Image img = originalIcon.getImage();
-  // Масштабируем (можно использовать MediaTracker для ожидания, но обычно работает)
-  Image scaledImg = img.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+
+  ImageIcon originalIcon = new ImageIcon(getClass().getResource("/find.png")); // Загружаем иконку
+  Image img = originalIcon.getImage(); // Получаем изображение
+  Image scaledImg = img.getScaledInstance(20, 20, Image.SCALE_SMOOTH); // Масштабируем (можно использовать MediaTracker для ожидания, но обычно работает)
   private JButton findButton = new JButton("Найти", new ImageIcon(scaledImg));
   
   private JButton sortNameButton = new JButton("Сортировать");
+  
+  ImageIcon exportIcon = new ImageIcon(getClass().getResource("/export.png"));
+  Image exportImg = exportIcon.getImage();
+  Image exportScaledImg = exportImg.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+  private JButton exportButton = new JButton(new ImageIcon(exportScaledImg));
+  
   private JTextArea displayArea = new JTextArea(10, 30);
   private JScrollPane scrollPane = new JScrollPane(displayArea);
   private ClientDataAccessObject clientDataAccessObject = new ClientDataAccessObject();
@@ -78,12 +86,14 @@ public class ClientForm extends JFrame {
     updateButton.setBounds(450, 150, 200, 30);
     findButton.setBounds(750, 50, 200, 30);
     sortNameButton.setBounds(750, 100, 200, 30);
+    exportButton.setBounds(750, 470, 30, 30);
     frame.add(addButton);
     frame.add(listButton);
     frame.add(deleteButton);
     frame.add(updateButton);
     frame.add(findButton);
     frame.add(sortNameButton);
+    frame.add(exportButton);
     
     // Добавляем компоненты на фрейм
     nameField.setBounds(100, 50, 300, 30); // x, y, ширина, высота
@@ -241,6 +251,29 @@ public class ClientForm extends JFrame {
       }
       
     });
+    
+    // Обработка события Сортировать записи таблици по имени
+    exportButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        // Используем UTF-8 с BOM для корректного открытия в Excel
+        try (PrintWriter writer = new PrintWriter( 
+            new OutputStreamWriter(new FileOutputStream("clients.csv"),  
+            StandardCharsets.UTF_8))) {
+          // Добавляем BOM (Byte Order Mark) для корректного распознавания UTF-8 в Excel
+          writer.print('\uFEFF');
+          writer.println("ID;Имя;Телефон;Email");
+          for (Client client : clientDataAccessObject.getAllClients()) {
+              writer.printf("%d;%s;%s;%s%n", 
+                  client.getId(), client.getName(), client.getPhone(), client.getEmail());
+          }
+          JOptionPane.showMessageDialog(frame, "Экспорт завершён!");
+        } catch (IOException ex) {
+          ex.printStackTrace();
+        }
+      }
+      
+    });  
     
     
   }
