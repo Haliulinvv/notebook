@@ -167,4 +167,30 @@ public class ClientDataAccessObject {
     }
     return clients;
   }
+  
+  
+  /**
+   * Проверка дубликатов клиентов по имени и телефону.
+   */
+  public boolean clientExists(String name, String phone) {
+    String sql = "SELECT COUNT(*) FROM clients WHERE name = ? AND phone = ?";
+    
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        
+      pstmt.setString(1, name);
+      pstmt.setString(2, phone);
+      
+      try (ResultSet rs = pstmt.executeQuery()) {
+        if (rs.next()) {
+          return rs.getInt(1) > 0;
+        }
+      }
+    } catch (SQLException e) {
+      System.err.println("Ошибка при проверке дубликата: " + e.getMessage());
+    }
+    return false;
+  }
+  
+  
 }

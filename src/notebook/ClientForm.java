@@ -1,14 +1,20 @@
 package notebook;
 
 import java.awt.BorderLayout;
+import java.awt.FileDialog;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -36,7 +42,8 @@ public class ClientForm extends JFrame {
 
   ImageIcon originalIcon = new ImageIcon(getClass().getResource("/find.png")); // Загружаем иконку
   Image img = originalIcon.getImage(); // Получаем изображение
-  Image scaledImg = img.getScaledInstance(20, 20, Image.SCALE_SMOOTH); // Масштабируем (можно использовать MediaTracker для ожидания, но обычно работает)
+  //Масштабируем (можно использовать MediaTracker для ожидания, но обычно работает)
+  Image scaledImg = img.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
   private JButton findButton = new JButton("Найти", new ImageIcon(scaledImg));
   
   private JButton sortNameButton = new JButton("Сортировать");
@@ -45,6 +52,11 @@ public class ClientForm extends JFrame {
   Image exportImg = exportIcon.getImage();
   Image exportScaledImg = exportImg.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
   private JButton exportButton = new JButton(new ImageIcon(exportScaledImg));
+  
+  ImageIcon importIcon = new ImageIcon(getClass().getResource("/import.png"));
+  Image importImg = importIcon.getImage();
+  Image importScaledImg = importImg.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+  private JButton importButton = new JButton(new ImageIcon(importScaledImg));
   
   private JTextArea displayArea = new JTextArea(10, 30);
   private JScrollPane scrollPane = new JScrollPane(displayArea);
@@ -87,6 +99,7 @@ public class ClientForm extends JFrame {
     findButton.setBounds(750, 50, 200, 30);
     sortNameButton.setBounds(750, 100, 200, 30);
     exportButton.setBounds(750, 470, 30, 30);
+    importButton.setBounds(790, 470, 30, 30);
     frame.add(addButton);
     frame.add(listButton);
     frame.add(deleteButton);
@@ -94,6 +107,7 @@ public class ClientForm extends JFrame {
     frame.add(findButton);
     frame.add(sortNameButton);
     frame.add(exportButton);
+    frame.add(importButton);
     
     // Добавляем компоненты на фрейм
     nameField.setBounds(100, 50, 300, 30); // x, y, ширина, высота
@@ -252,12 +266,12 @@ public class ClientForm extends JFrame {
       
     });
     
-    // Обработка события Сортировать записи таблици по имени
+    // Обработка события Экспорта таблици в CSV файл
     exportButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
         // Используем UTF-8 с BOM для корректного открытия в Excel
-        try (PrintWriter writer = new PrintWriter( 
+        try (PrintWriter writer = new PrintWriter(
             new OutputStreamWriter(new FileOutputStream("clients.csv"),  
             StandardCharsets.UTF_8))) {
           // Добавляем BOM (Byte Order Mark) для корректного распознавания UTF-8 в Excel
@@ -273,9 +287,47 @@ public class ClientForm extends JFrame {
         }
       }
       
-    });  
+    }); 
     
-    
+    // Обработка события Импорта в таблицу из CSV файл
+    importButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        // 1. Выбор файла
+            
+        FileDialog fileDialog = new FileDialog(frame, "Выберите CSV файл", FileDialog.LOAD);
+        fileDialog.setFile("*.csv; *.txt; *.xlsx");
+        fileDialog.setVisible(true);
+
+
+        // 2. Получаем выбранный файл
+        String fileName = fileDialog.getFile();
+        String directory = fileDialog.getDirectory();
+        
+        if (fileName == null) {
+            return; // пользователь отменил выбор
+        }
+        
+        File selectedFile = new File(directory, fileName);
+        
+        // 3. Проверяем существование файла
+        if (!selectedFile.exists()) {
+            JOptionPane.showMessageDialog(frame, 
+                "Файл не найден!", 
+                "Ошибка", 
+                JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // 4. Выбираем разделитель
+        char separator = chooseSeparator();
+        
+        // 5. Импортируем данные
+        importDataFromFile(selectedFile, separator);
+        
+      }
+      
+    });
   }
 
 
@@ -289,4 +341,188 @@ public class ClientForm extends JFrame {
 
     }
   }
+  
+  
+  /**
+   * Диалог выбора разделителя CSV.
+   */
+  private char chooseSeparator() {
+    String[] options = {"Точка с запятой (;)", "Запятая (,)", "Табуляция (Tab)"};
+    int choice = JOptionPane.showOptionDialog(frame,
+          "Выберите разделитель полей в CSV файле:",
+          "Разделитель",
+          JOptionPane.DEFAULT_OPTION,
+          JOptionPane.QUESTION_MESSAGE,
+          null, options, options[0]);
+    switch (choice) {
+      case 0: return ';';
+      case 1: return ',';
+      case 2: return '\t';
+      default: return ';';
+    }
+  }
+  
+  /**
+   * Импорт данных из файла.
+   */
+  private void importDataFromFile(File file, char separator) {
+    int importedCount = 0;
+    int duplicateCount = 0;
+    int errorCount = 0;
+    List<String> errors = new ArrayList<>();
+    
+    try {
+      // Читаем файл в UTF-8
+      List<String> lines = Files.readAllLines(Paths.get(file.getAbsolutePath()), 
+                                              StandardCharsets.UTF_8);
+      
+      // Обработка BOM (Byte Order Mark) для UTF-8 файлов из Excel
+      if (!lines.isEmpty() && lines.get(0).startsWith("\uFEFF")) {
+        lines.set(0, lines.get(0).substring(1));
+      }
+          
+      for (int i = 0; i < lines.size(); i++) {
+        String line = lines.get(i).trim();
+        
+        // Пропускаем пустые строки
+        if (line.isEmpty()) {
+          continue;
+        }
+              
+        // Парсим строку CSV с учётом кавычек
+        String[] fields = parseCsvLine(line, separator);
+        
+        // Проверяем количество полей (минимум имя и телефон)
+        if (fields.length < 2) {
+          errorCount++;
+          errors.add("Строка " + (i + 1) + ": недостаточно полей (найдено " + fields.length + ")");
+          continue;
+        }
+              
+        // Пропускаем заголовок, если он есть
+        if (i == 0 && isHeaderRow(fields)) {
+          continue;
+        }
+        
+        // Извлекаем данные
+        String name = fields[1].trim();
+        String phone = fields.length > 1 ? fields[2].trim() : "";
+        String email = fields.length > 2 ? fields[3].trim() : "";
+              
+        // Валидация имени
+        if (name.isEmpty()) {
+          errorCount++;
+          errors.add("Строка " + (i + 1) + ": имя не может быть пустым");
+          continue;
+        }
+              
+        // Проверка на дубликат
+        if (clientDataAccessObject.clientExists(name, phone)) {
+          duplicateCount++;
+          continue;
+        }
+              
+        // Добавляем клиента
+        Client client = new Client(name, phone, email);
+        clientDataAccessObject.addClient(client);
+        importedCount++;
+      }
+          
+      // Показываем результат
+      showImportResult(importedCount, duplicateCount, errorCount, errors);
+      
+      // Обновляем список клиентов
+      updateClientList();
+          
+    } catch (IOException e) {
+      JOptionPane.showMessageDialog(frame,
+          "Ошибка при чтении файла:\n" + e.getMessage(),
+          "Ошибка импорта",
+          JOptionPane.ERROR_MESSAGE);
+      e.printStackTrace();
+    }
+  }
+  
+  
+  /**
+   * Парсит одну строку CSV с учётом кавычек
+   * Например: "Иванов, Иван";"+7(999)123-45-67";"ivan@mail.ru".
+   */
+  private String[] parseCsvLine(String line, char separator) {
+    List<String> result = new ArrayList<>();
+    boolean inQuotes = false;
+    StringBuilder currentField = new StringBuilder();
+    
+    for (int i = 0; i < line.length(); i++) {
+      char c = line.charAt(i);
+        
+      if (c == '"') {
+        // Обработка экранированных кавычек ("" внутри кавычек)
+        if (inQuotes && i + 1 < line.length() && line.charAt(i + 1) == '"') {
+          currentField.append('"');
+          i++; // пропускаем вторую кавычку
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (!inQuotes && c == separator) {
+        // Конец поля
+        result.add(currentField.toString());
+        currentField = new StringBuilder();
+      } else {
+        currentField.append(c);
+      }
+    }
+    result.add(currentField.toString());
+      
+    return result.toArray(new String[0]);
+  }
+  
+  
+  /**
+   * Проверяет, является ли строка заголовком.
+   */
+  private boolean isHeaderRow(String[] fields) {
+    String firstField = fields[0].toLowerCase();
+    String secondField = fields[1].toLowerCase();
+    
+    return firstField.equals("id")
+           ||  firstField.equals("№")
+           ||  firstField.equals("имя")
+           ||  secondField.equals("имя")
+           ||  secondField.equals("name")
+           ||  secondField.equals("телефон")
+           ||  secondField.equals("phone");
+  }
+  
+  /**
+  * Показывает диалог с результатами импорта.
+  */
+  private void showImportResult(int imported,
+                              int duplicates,
+                              int errors,
+                              List<String> errorMessages) {
+    String message = String.format(
+         "Импорт завершён!\n\n"
+         + "✅ Добавлено: %d\n"
+         + "⚠️ Пропущено (дубликаты): %d\n"
+         + "❌ Ошибок: %d",
+         imported, duplicates, errors);
+     
+    // Если есть ошибки, показываем первые 10
+    if (!errorMessages.isEmpty()) {
+      StringBuilder sb = new StringBuilder(message);
+      sb.append("\n\nПервые ошибки:\n");
+      for (int i = 0; i < Math.min(errorMessages.size(), 10); i++) {
+        sb.append("• ").append(errorMessages.get(i)).append("\n");
+      }
+      if (errorMessages.size() > 10) {
+        sb.append("... и ещё ").append(errorMessages.size() - 10).append(" ошибок");
+      }
+      message = sb.toString();
+    }
+     
+    JOptionPane.showMessageDialog(frame, message, "Результат импорта",
+                                   JOptionPane.INFORMATION_MESSAGE);
+  }
+  
 }
