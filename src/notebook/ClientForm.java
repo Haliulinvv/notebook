@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -32,7 +33,6 @@ public class ClientForm extends JFrame {
 
   private static final long serialVersionUID = 1L;
   private JFrame frame = new JFrame("Записная книга");
-
   private JTextField nameField = new JTextField(15);
   private JTextField phoneField = new JTextField(15);
   private JTextField emailField = new JTextField(15);
@@ -41,6 +41,13 @@ public class ClientForm extends JFrame {
   private JButton listButton = new JButton("Показать всех");
   private JButton deleteButton = new JButton("Удалить");
   private JButton updateButton = new JButton("Обновить");
+  
+  String[] letters = {
+    "Все", "А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж", "З", 
+      "И", "Й", "К", "Л", "М", "Н", "О", "П", "Р", "С", 
+      "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ы", 
+      "Ь", "Э", "Ю", "Я"};
+  JComboBox<String> combo = new JComboBox<>(letters);
 
   ImageIcon originalIcon = new ImageIcon(getClass().getResource("/find.png")); // Загружаем иконку
   Image img = originalIcon.getImage(); // Получаем изображение
@@ -126,6 +133,10 @@ public class ClientForm extends JFrame {
     frame.add(emailField, BorderLayout.NORTH);
     frame.add(idField, BorderLayout.NORTH);
 
+    JLabel labelLetter = new JLabel("Выборка по алфавиту");
+    labelLetter.setBounds(30, 10, 150, 30); // x, y, ширина, высота
+    frame.add(labelLetter);
+    
     JLabel labelName = new JLabel("Имя");
     labelName.setBounds(30, 50, 50, 30); // x, y, ширина, высота
     frame.add(labelName);
@@ -151,7 +162,9 @@ public class ClientForm extends JFrame {
     
     
     addExitConfirmation();
-
+    combo.setBounds(200, 10, 60, 30);
+    frame.add(combo);
+   
     // Обработка события Добавления записи в таблицу
     addButton.addActionListener(new ActionListener() {
       @Override
@@ -356,12 +369,35 @@ public class ClientForm extends JFrame {
 
       }
     });
+  
     
-    
+    // Обработка события установки nextval
+    combo.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        String selected = (String) combo.getSelectedItem();
+        if ("Все".equals(selected)) {
+          filterByFirstLetter(null);
+        } else {
+          filterByFirstLetter(selected);
+        }
+      }
+    });
   }
 
 
-
+  /**
+   * Обновляет таблицу (перегруженный метод).
+   */
+  private void updateClientList(List<Client> clients) {
+    displayArea.setText("");
+    for (Client client : clients) {
+      displayArea.append("ID: " + client.getId()
+          + " Имя: " + client.getName()
+          + " Телефон: " + client.getPhone()
+          + " e-mail: " + client.getEmail() + "\n");
+    }
+  }
   
   
   private void updateClientList() {
@@ -371,7 +407,6 @@ public class ClientForm extends JFrame {
           + " Имя: " + client.getName()
           + " Телефон: " + client.getPhone()
           + " e-mail: " + client.getEmail() + "\n");
-
     }
   }
   
@@ -553,7 +588,6 @@ public class ClientForm extends JFrame {
       }
       message = sb.toString();
     }
-     
     JOptionPane.showMessageDialog(frame, message, "Результат импорта",
                                    JOptionPane.INFORMATION_MESSAGE);
   }
@@ -575,7 +609,6 @@ public class ClientForm extends JFrame {
                 JOptionPane.YES_NO_OPTION,       // опции (Да/Нет)
                 JOptionPane.QUESTION_MESSAGE     // иконка (вопрос)
             );
-            
             // Если пользователь нажал "Да"
             if (result == JOptionPane.YES_OPTION) {
               // Закрываем приложение
@@ -586,4 +619,19 @@ public class ClientForm extends JFrame {
     });
   }
   
+
+  /**
+   * Фильтрует список по первой букве.
+   */
+  private void filterByFirstLetter(String letter) {
+
+    List<Client> clients;
+    
+    if (letter == null || letter.isEmpty()) {
+      clients = clientDataAccessObject.getAllClients();
+    } else {
+      clients = clientDataAccessObject.getSortNameClients(letter);
+    }
+    updateClientList(clients);
+  }
 }
