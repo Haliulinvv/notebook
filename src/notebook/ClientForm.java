@@ -25,8 +25,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
 
 
 public class ClientForm extends JFrame {
@@ -68,10 +69,10 @@ public class ClientForm extends JFrame {
   private JButton importButton = new JButton(new ImageIcon(importScaledImg));
   
   private JButton setNextvalDbButton = new JButton("Set nextval DB");
-  
-  private JTextArea displayArea = new JTextArea(10, 30);
-  private JScrollPane scrollPane = new JScrollPane(displayArea);
   private ClientDataAccessObject clientDataAccessObject = new ClientDataAccessObject();
+  
+  private JTable table;
+  private DefaultTableModel tableModel;
 
 
   /**
@@ -154,17 +155,17 @@ public class ClientForm extends JFrame {
     frame.add(labelId);
 
     // Добавляем на фрейм
-    //displayArea.setBounds(20, 200, 300, 250); // x, y, ширина, высота
-    //frame.add(displayArea);
+    /*
     displayArea.setEditable(false);
     scrollPane.setBounds(20, 200, 950, 250); // x, y, ширина, высота
     frame.add(scrollPane);
-    
+    */   
     
     addExitConfirmation();
     combo.setBounds(200, 10, 60, 30);
     frame.add(combo);
-   
+    initTable(); 
+ 
     // Обработка события Добавления записи в таблицу
     addButton.addActionListener(new ActionListener() {
       @Override
@@ -194,14 +195,17 @@ public class ClientForm extends JFrame {
 
     // Обработка события Вывести все записи из таблицы в многострочное текстовое поле
     listButton.addActionListener(e -> {
-      displayArea.setText(""); // Очищаем область
+      
+      tableModel.setRowCount(0);  // очищаем
       for (Client client : clientDataAccessObject.getAllClients()) {
-        displayArea.append("ID: " + client.getId()
-            + " Имя: " + client.getName()
-            + " Телефон: " + client.getPhone()
-            + " e-mail: " + client.getEmail() + "\n");
-
+        tableModel.addRow(new Object[]{
+              client.getId(),
+              client.getName(),
+              client.getPhone(),
+              client.getEmail()
+        });
       }
+      
     });
 
     // Обработка события Удаления записи из таблицы
@@ -216,7 +220,7 @@ public class ClientForm extends JFrame {
         // Вызываем метод удаления
         clientDataAccessObject.deleteClient(id);
         // Обновляем список клиентов (вызываем ту же логику, что и при нажатии "Показать всех")
-        updateClientList(); // метод для обновления displayArea
+        updateClientList(); // метод для обновления 
         idField.setText(""); // очищаем поле
         JOptionPane.showMessageDialog(frame, "Запись удалена.");
       } catch (NumberFormatException ex) {
@@ -247,7 +251,7 @@ public class ClientForm extends JFrame {
       }
     });
 
-    // Обработка события Добавления записи в таблицу
+    // Обработка события поиска записи в таблице
     findButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -256,13 +260,15 @@ public class ClientForm extends JFrame {
           JOptionPane.showMessageDialog(ClientForm.this, "Имя не может быть пустым!");
           return;
         }
-        displayArea.setText(""); // Очищаем область
+      
+        tableModel.setRowCount(0);  // очищаем
         for (Client client : clientDataAccessObject.getFindClients(name)) {
-          displayArea.append("ID: " + client.getId()
-              + " Имя: " + client.getName()
-              + " Телефон: " + client.getPhone()
-              + " e-mail: " + client.getEmail() + "\n");
-
+          tableModel.addRow(new Object[]{
+                client.getId(),
+                client.getName(),
+                client.getPhone(),
+                client.getEmail()
+          });
         }
       }
       
@@ -278,12 +284,15 @@ public class ClientForm extends JFrame {
           JOptionPane.showMessageDialog(ClientForm.this, "Имя не может быть пустым!");
           return;
         }
-        displayArea.setText(""); // Очищаем область
+        tableModel.setRowCount(0);  // очищаем
         for (Client client : clientDataAccessObject.getSortNameClients(name)) {
-          displayArea.append(" Имя: " + client.getName()
-                           + "    Телефон: " + client.getPhone() + "\n");
-
-        }
+          tableModel.addRow(new Object[]{
+                client.getId(),
+                client.getName(),
+                client.getPhone(),
+                client.getEmail()
+          });
+        }  
       }
       
     });
@@ -370,7 +379,6 @@ public class ClientForm extends JFrame {
       }
     });
   
-    
     // Обработка события установки nextval
     combo.addActionListener(new ActionListener() {
       @Override
@@ -390,23 +398,28 @@ public class ClientForm extends JFrame {
    * Обновляет таблицу (перегруженный метод).
    */
   private void updateClientList(List<Client> clients) {
-    displayArea.setText("");
+    tableModel.setRowCount(0);  // очищаем
     for (Client client : clients) {
-      displayArea.append("ID: " + client.getId()
-          + " Имя: " + client.getName()
-          + " Телефон: " + client.getPhone()
-          + " e-mail: " + client.getEmail() + "\n");
+      tableModel.addRow(new Object[]{
+            client.getId(),
+            client.getName(),
+            client.getPhone(),
+            client.getEmail()
+      });
     }
   }
   
   
   private void updateClientList() {
-    displayArea.setText("");
+   
+    tableModel.setRowCount(0);  // очищаем
     for (Client client : clientDataAccessObject.getAllClients()) {
-      displayArea.append("ID: " + client.getId()
-          + " Имя: " + client.getName()
-          + " Телефон: " + client.getPhone()
-          + " e-mail: " + client.getEmail() + "\n");
+      tableModel.addRow(new Object[]{
+            client.getId(),
+            client.getName(),
+            client.getPhone(),
+            client.getEmail()
+      });
     }
   }
   
@@ -634,4 +647,39 @@ public class ClientForm extends JFrame {
     }
     updateClientList(clients);
   }
+  
+  
+  
+  /**
+   * Содание таблицы.
+   */
+  private void initTable() {
+    // Названия колонок
+    String[] columns = {"ID", "Имя", "Телефон", "E-mail"};
+    
+    // Создаём модель таблицы (с колонками, но без данных)
+    tableModel = new DefaultTableModel(columns, 0);
+    
+    // Создаём таблицу с моделью
+    table = new JTable(tableModel);
+    
+    // Настройки внешнего вида
+    table.setFillsViewportHeight(true);
+    table.setRowHeight(15);
+    table.getTableHeader().setReorderingAllowed(false);
+    
+    // Настройка ширины колонок
+    table.getColumnModel().getColumn(0).setPreferredWidth(10);   // ID
+    table.getColumnModel().getColumn(1).setPreferredWidth(240);  // Имя
+    table.getColumnModel().getColumn(2).setPreferredWidth(150);  // Телефон
+    table.getColumnModel().getColumn(3).setPreferredWidth(200);  // E-mail
+    
+    // Оборачиваем в скролл-панель
+    JScrollPane scrollPane = new JScrollPane(table);
+    scrollPane.setBounds(20, 200, 950, 250); // x, y, ширина, высота
+    frame.add(scrollPane);
+
+  }
+  
 }
+
