@@ -5,6 +5,8 @@ import java.awt.FileDialog;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -146,6 +148,9 @@ public class ClientForm extends JFrame {
     displayArea.setEditable(false);
     scrollPane.setBounds(20, 200, 950, 250); // x, y, ширина, высота
     frame.add(scrollPane);
+    
+    
+    addExitConfirmation();
 
     // Обработка события Добавления записи в таблицу
     addButton.addActionListener(new ActionListener() {
@@ -551,6 +556,34 @@ public class ClientForm extends JFrame {
      
     JOptionPane.showMessageDialog(frame, message, "Результат импорта",
                                    JOptionPane.INFORMATION_MESSAGE);
+  }
+  
+  
+  private void addExitConfirmation() {
+    // Меняем поведение при закрытии окна
+    frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    
+    // Добавляем слушатель окна
+    frame.addWindowListener(new WindowAdapter() {
+        @Override
+        public void windowClosing(WindowEvent e) {
+            // Показываем диалог подтверждения
+            int result = JOptionPane.showConfirmDialog(
+                frame,                          // родительское окно
+                "Вы уверены, что хотите выйти?", // сообщение
+                "Подтверждение выхода",          // заголовок
+                JOptionPane.YES_NO_OPTION,       // опции (Да/Нет)
+                JOptionPane.QUESTION_MESSAGE     // иконка (вопрос)
+            );
+            
+            // Если пользователь нажал "Да"
+            if (result == JOptionPane.YES_OPTION) {
+              // Закрываем приложение
+              System.exit(0);
+            }
+            // Если нажал "Нет" — ничего не делаем, окно остаётся открытым
+        }
+    });
   }
   
 }

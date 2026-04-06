@@ -179,7 +179,6 @@ public class ClientDataAccessObject {
     // try-with-resources автоматически закроет Connection, Statement и ResultSet
     try (Connection conn = DatabaseConnection.getConnection();
         PreparedStatement pstmt = conn.prepareStatement(sql)) {
-      //pstmt.setInt(1, id);
       pstmt.executeUpdate();
       System.out.println("Sequence сброшена. Следующий ID будет: " + id);
 
