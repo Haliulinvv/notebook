@@ -58,6 +58,8 @@ public class ClientForm extends JFrame {
   Image importScaledImg = importImg.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
   private JButton importButton = new JButton(new ImageIcon(importScaledImg));
   
+  private JButton setNextvalDbButton = new JButton("Set nextval DB");
+  
   private JTextArea displayArea = new JTextArea(10, 30);
   private JScrollPane scrollPane = new JScrollPane(displayArea);
   private ClientDataAccessObject clientDataAccessObject = new ClientDataAccessObject();
@@ -100,6 +102,7 @@ public class ClientForm extends JFrame {
     sortNameButton.setBounds(750, 100, 200, 30);
     exportButton.setBounds(750, 470, 30, 30);
     importButton.setBounds(790, 470, 30, 30);
+    setNextvalDbButton.setBounds(750, 150, 200, 30);
     frame.add(addButton);
     frame.add(listButton);
     frame.add(deleteButton);
@@ -108,6 +111,7 @@ public class ClientForm extends JFrame {
     frame.add(sortNameButton);
     frame.add(exportButton);
     frame.add(importButton);
+    frame.add(setNextvalDbButton);
     
     // Добавляем компоненты на фрейм
     nameField.setBounds(100, 50, 300, 30); // x, y, ширина, высота
@@ -155,14 +159,14 @@ public class ClientForm extends JFrame {
           JOptionPane.showMessageDialog(ClientForm.this, "Имя не может быть пустым!");
           return;
         }
-        JOptionPane.showMessageDialog(ClientForm.this, "Вы ввели имя: " + name + "\n"
+        JOptionPane.showMessageDialog(frame, "Вы ввели имя: " + name + "\n"
             + "Телефон : " + phone + "\n"
             + "E-mail : " + email);
 
         Client newClient = new Client(name, phone, email);
         clientDataAccessObject.addClient(newClient); // Вот здесь мы вызываем метод для работы с БД
 
-        JOptionPane.showMessageDialog(ClientForm.this, "Клиент добавлен!");
+        JOptionPane.showMessageDialog(frame, "Клиент добавлен!");
         nameField.setText("");
         phoneField.setText("");
         emailField.setText("");
@@ -328,9 +332,33 @@ public class ClientForm extends JFrame {
       }
       
     });
+    
+    // Обработка события установки nextval
+    setNextvalDbButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        String idText = idField.getText();
+        try {
+          int id = Integer.parseInt(idText);
+          clientDataAccessObject.setNextvalClients(id);
+          JOptionPane.showMessageDialog(frame, "Установка nextval выполнена!");
+        } catch (NumberFormatException ex) {
+          JOptionPane.showMessageDialog(frame, "ID должен быть целым числом.");
+        } catch (Exception ex) {
+          JOptionPane.showMessageDialog(frame, "Ошибка при удалении: " + ex.getMessage());
+          ex.printStackTrace();
+        }
+
+      }
+    });
+    
+    
   }
 
 
+
+  
+  
   private void updateClientList() {
     displayArea.setText("");
     for (Client client : clientDataAccessObject.getAllClients()) {

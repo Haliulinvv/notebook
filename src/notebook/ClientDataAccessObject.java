@@ -168,6 +168,28 @@ public class ClientDataAccessObject {
     return clients;
   }
   
+  /**
+   * Установка nextval.
+   */
+  
+  public void setNextvalClients(int id) {
+    
+    String sql = "ALTER SEQUENCE clients_id_seq RESTART WITH " + id;
+
+    // try-with-resources автоматически закроет Connection, Statement и ResultSet
+    try (Connection conn = DatabaseConnection.getConnection();
+        PreparedStatement pstmt = conn.prepareStatement(sql)) {
+      //pstmt.setInt(1, id);
+      pstmt.executeUpdate();
+      System.out.println("Sequence сброшена. Следующий ID будет: " + id);
+
+    } catch (SQLException e) {
+      System.err.println("Ошибка при сбросе sequence: " + e.getMessage());
+      e.printStackTrace();
+    }
+
+  }
+  
   
   /**
    * Проверка дубликатов клиентов по имени и телефону.
