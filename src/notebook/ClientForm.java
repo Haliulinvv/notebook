@@ -83,6 +83,9 @@ public class ClientForm extends JFrame {
    *
    */
 
+  /**
+   * Конструктор класса.
+   */
   public ClientForm() {
 
     // Иконка окна
@@ -105,33 +108,43 @@ public class ClientForm extends JFrame {
     frame.setVisible(true);
   
     addButton.setBounds(450, 50, 200, 30); // x, y, ширина, высота
-    listButton.setBounds(450, 100, 200, 30);
-    deleteButton.setBounds(450, 470, 200, 30);
-    updateButton.setBounds(450, 150, 200, 30);
-    findButton.setBounds(750, 50, 200, 30);
-    sortNameButton.setBounds(750, 100, 200, 30);
-    exportButton.setBounds(750, 470, 30, 30);
-    importButton.setBounds(790, 470, 30, 30);
-    setNextvalDbButton.setBounds(750, 150, 200, 30);
     frame.add(addButton);
+    
+    listButton.setBounds(450, 100, 200, 30);
     frame.add(listButton);
+    
+    deleteButton.setBounds(450, 470, 200, 30);
     frame.add(deleteButton);
+    
+    updateButton.setBounds(450, 150, 200, 30);
     frame.add(updateButton);
+    
+    findButton.setBounds(750, 50, 200, 30);
     frame.add(findButton);
+    
+    sortNameButton.setBounds(750, 100, 200, 30);
     frame.add(sortNameButton);
+    
+    exportButton.setBounds(750, 470, 30, 30);
     frame.add(exportButton);
+    
+    importButton.setBounds(790, 470, 30, 30);
     frame.add(importButton);
+    
+    setNextvalDbButton.setBounds(750, 150, 200, 30); 
     frame.add(setNextvalDbButton);
     
     // Добавляем компоненты на фрейм
     nameField.setBounds(100, 50, 300, 30); // x, y, ширина, высота
-    phoneField.setBounds(100, 100, 300, 30);
-    emailField.setBounds(100, 150, 300, 30);
-    idField.setBounds(100, 470, 300, 30);
-
     frame.add(nameField, BorderLayout.NORTH);
+    
+    phoneField.setBounds(100, 100, 300, 30);
     frame.add(phoneField, BorderLayout.NORTH);
+    
+    emailField.setBounds(100, 150, 300, 30);
     frame.add(emailField, BorderLayout.NORTH);
+    
+    idField.setBounds(100, 470, 300, 30); 
     frame.add(idField, BorderLayout.NORTH);
 
     JLabel labelLetter = new JLabel("Выборка по алфавиту");
@@ -139,33 +152,32 @@ public class ClientForm extends JFrame {
     frame.add(labelLetter);
     
     JLabel labelName = new JLabel("Имя");
-    labelName.setBounds(30, 50, 50, 30); // x, y, ширина, высота
+    labelName.setBounds(30, 50, 50, 30);
     frame.add(labelName);
 
     JLabel labelPhone = new JLabel("Телефон");
-    labelPhone.setBounds(30, 100, 70, 30); // x, y, ширина, высота
+    labelPhone.setBounds(30, 100, 70, 30);
     frame.add(labelPhone);
 
     JLabel labelMail = new JLabel("E-mail");
-    labelMail.setBounds(30, 150, 50, 30); // x, y, ширина, высота
+    labelMail.setBounds(30, 150, 50, 30);
     frame.add(labelMail);
 
     JLabel labelId = new JLabel("ID");
-    labelId.setBounds(30, 470, 50, 30); // x, y, ширина, высота
+    labelId.setBounds(30, 470, 50, 30);
     frame.add(labelId);
 
-    // Добавляем на фрейм
-    /*
-    displayArea.setEditable(false);
-    scrollPane.setBounds(20, 200, 950, 250); // x, y, ширина, высота
-    frame.add(scrollPane);
-    */   
-    
-    addExitConfirmation();
     combo.setBounds(200, 10, 60, 30);
     frame.add(combo);
     initTable(); 
  
+    updateClientList();
+    
+    addExitConfirmation();
+    
+    
+    
+    
     // Обработка события Добавления записи в таблицу
     addButton.addActionListener(new ActionListener() {
       @Override
@@ -193,19 +205,9 @@ public class ClientForm extends JFrame {
       }
     });
 
-    // Обработка события Вывести все записи из таблицы в многострочное текстовое поле
+    // Обработка события Вывести все записи
     listButton.addActionListener(e -> {
-      
-      tableModel.setRowCount(0);  // очищаем
-      for (Client client : clientDataAccessObject.getAllClients()) {
-        tableModel.addRow(new Object[]{
-              client.getId(),
-              client.getName(),
-              client.getPhone(),
-              client.getEmail()
-        });
-      }
-      
+      fillTable(clientDataAccessObject.getAllClients());
     });
 
     // Обработка события Удаления записи из таблицы
@@ -231,7 +233,7 @@ public class ClientForm extends JFrame {
       }
     });
 
-    // Обработка события Обновления записи в таблице
+    // Обработка события Обновления записи
     updateButton.addActionListener(e -> {
       String idText = idField.getText();
       String name = nameField.getText();
@@ -251,7 +253,7 @@ public class ClientForm extends JFrame {
       }
     });
 
-    // Обработка события поиска записи в таблице
+    // Обработка события поиска записи
     findButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -260,22 +262,13 @@ public class ClientForm extends JFrame {
           JOptionPane.showMessageDialog(ClientForm.this, "Имя не может быть пустым!");
           return;
         }
-      
-        tableModel.setRowCount(0);  // очищаем
-        for (Client client : clientDataAccessObject.getFindClients(name)) {
-          tableModel.addRow(new Object[]{
-                client.getId(),
-                client.getName(),
-                client.getPhone(),
-                client.getEmail()
-          });
-        }
+        fillTable(clientDataAccessObject.getFindClients(name));
       }
       
     });
     
     
-    // Обработка события Сортировать записи таблици по имени
+    // Обработка события Сортировать записи
     sortNameButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -284,15 +277,7 @@ public class ClientForm extends JFrame {
           JOptionPane.showMessageDialog(ClientForm.this, "Имя не может быть пустым!");
           return;
         }
-        tableModel.setRowCount(0);  // очищаем
-        for (Client client : clientDataAccessObject.getSortNameClients(name)) {
-          tableModel.addRow(new Object[]{
-                client.getId(),
-                client.getName(),
-                client.getPhone(),
-                client.getEmail()
-          });
-        }  
+        fillTable(clientDataAccessObject.getSortNameClients(name)); 
       }
       
     });
@@ -400,27 +385,15 @@ public class ClientForm extends JFrame {
   private void updateClientList(List<Client> clients) {
     tableModel.setRowCount(0);  // очищаем
     for (Client client : clients) {
-      tableModel.addRow(new Object[]{
-            client.getId(),
-            client.getName(),
-            client.getPhone(),
-            client.getEmail()
-      });
+      writeTable(client);
     }
   }
   
-  
+  /**
+   * Обновляет таблицу.
+   */
   private void updateClientList() {
-   
-    tableModel.setRowCount(0);  // очищаем
-    for (Client client : clientDataAccessObject.getAllClients()) {
-      tableModel.addRow(new Object[]{
-            client.getId(),
-            client.getName(),
-            client.getPhone(),
-            client.getEmail()
-      });
-    }
+    fillTable(clientDataAccessObject.getAllClients());
   }
   
   
@@ -663,6 +636,8 @@ public class ClientForm extends JFrame {
     // Создаём таблицу с моделью
     table = new JTable(tableModel);
     
+    table.setAutoCreateRowSorter(true);
+    
     // Настройки внешнего вида
     table.setFillsViewportHeight(true);
     table.setRowHeight(15);
@@ -680,6 +655,23 @@ public class ClientForm extends JFrame {
     frame.add(scrollPane);
 
   }
+  
+  private void writeTable(Client client) {
+    tableModel.addRow(new Object[]{
+        client.getId(),
+        client.getName(),
+        client.getPhone(),
+        client.getEmail()
+    });
+  }
+  
+  private void fillTable(List<Client> clients) {
+    tableModel.setRowCount(0);  // очищаем
+    for (Client client : clients) {
+      writeTable(client);
+    }
+  }
+  
   
 }
 
